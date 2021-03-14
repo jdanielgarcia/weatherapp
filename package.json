@@ -24,6 +24,8 @@
         "vue-template-compiler": "^2.6.12"
     },
     "dependencies": {
-        "vue": "^2.6.12"
+        "@egjs/vue-flicking": "^3.6.0",
+        "vue": "^2.6.12",
+        "vue-agile": "^1.1.3"
     }
 }

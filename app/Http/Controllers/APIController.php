@@ -13,67 +13,80 @@ use Carbon\Carbon;
 class APIController extends Controller
 {
 
-    public function getWeatherForecast(Request $request){
-      $city = $request->input('city', null);
-      if(!$city){
-        return $this->sendResponse("ERROR", "Invalid request.", "10001", null);
-      }
+  public function getCities(Request $request){
+    $return_data = [
+      'Tokyo' => asset('images/Tokyo.jpg'),
+      'Yokohama' => asset('images/Yokohama.jpg'),
+      'Kyoto' => asset('images/Kyoto.jpg'),
+      'Osaka' => asset('images/Osaka.jpg'),
+      'Sapporo' => asset('images/Sapporo.jpg'),
+      'Nagoya' => asset('images/Nagoya.jpg')
+    ];
 
-      $location = $city.',jp';
+    return $this->sendResponse("SUCCESS", null, null, $return_data);
+  }
 
-      $api_request = env('OPEN_WEATHER_API');
-      $api_data = [
-        'q' => $location,
-        'appid' => env('OPEN_WEATHER_APIKEY')
-      ];
-      $response = $this->sendRequest($api_request, $api_data)->collect();
-
-      $response_forecasts = collect($response->get('list'));
-
-      $forecasts = $response_forecasts->map(function($date, $key){
-        return new Forecast($date);
-      });
-
-      $venues = $this->getVenueDetails($location);
-
-      $return_data = ['forecasts' => $forecasts->toArray(), 'venues' => $venues->toArray()];
-
-      Log::debug($return_data);
-
-      return $this->sendResponse("SUCCESS", null, null, $return_data);
+  public function getWeatherForecast(Request $request){
+    $city = $request->input('city', null);
+    if(!$city){
+      return $this->sendResponse("ERROR", "Invalid request.", "10001", null);
     }
 
-    private function getVenueDetails($location){
+    $location = $city.',jp';
 
-      $api_request = env('FS_API');
-      $api_data = [
-        'client_id' => env('FS_CLIENT_ID'),
-        'client_secret' => env('FS_CLIENT_SECRET'),
-        'near' => $location,
-        'v' => 20210101
-      ];
-      
-      $response_venues = $this->sendRequest($api_request, $api_data)->collect()->get('response')['venues'];
+    $api_request = env('OPEN_WEATHER_API');
+    $api_data = [
+      'q' => $location,
+      'appid' => env('OPEN_WEATHER_APIKEY')
+    ];
+    $response = $this->sendRequest($api_request, $api_data)->collect();
 
-      $venues = collect($response_venues)->map(function($venue, $key){
-        return new Venue($venue);
-      });
+    $response_forecasts = collect($response->get('list'));
 
-      return $venues;
+    $forecasts = $response_forecasts->map(function($date, $key){
+      return new Forecast($date);
+    });
 
-      // return $this->sendResponse("SUCCESS", null, null, $response);
-    }
+    $venues = $this->getVenueDetails($location);
 
-    private function sendRequest($api, $params){
-      return  Http::get($api, $params);
-    }
+    $return_data = ['forecasts' => $forecasts->toArray(), 'venues' => $venues->toArray()];
 
-    private function sendResponse($result, $message, $error_code=null, $data=null){
-      return response()->json([
-        'RESULT' => $result,
-        'MESSAGE' => $message,
-        'ERROR_CODE' => $error_code,
-        'DATA' => $data
-      ]);
-    }
+    Log::debug($return_data);
+
+    return $this->sendResponse("SUCCESS", null, null, $return_data);
+  }
+
+  private function getVenueDetails($location){
+
+    $api_request = env('FS_API');
+    $api_data = [
+      'client_id' => env('FS_CLIENT_ID'),
+      'client_secret' => env('FS_CLIENT_SECRET'),
+      'near' => $location,
+      'v' => 20210101
+    ];
+    
+    $response_venues = $this->sendRequest($api_request, $api_data)->collect()->get('response')['venues'];
+
+    $venues = collect($response_venues)->map(function($venue, $key){
+      return new Venue($venue);
+    });
+
+    return $venues;
+
+    // return $this->sendResponse("SUCCESS", null, null, $response);
+  }
+
+  private function sendRequest($api, $params){
+    return  Http::get($api, $params);
+  }
+
+  private function sendResponse($result, $message, $error_code=null, $data=null){
+    return response()->json([
+      'RESULT' => $result,
+      'MESSAGE' => $message,
+      'ERROR_CODE' => $error_code,
+      'DATA' => $data
+    ]);
+  }
 }

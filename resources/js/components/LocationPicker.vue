@@ -1,5 +1,17 @@
 <template>
   <div>
+    <div class="container">
+      <div class="row justify-content-center">
+        
+        <div class="card m-2 w-100" v-for="(city, key) in locations">
+          <div class="card-body">
+            <h1>{{city}}</h1>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <select v-model="selected_city">
       <option v-for="(city, key) in locations" :value="city">{{city}}</option>
     </select>

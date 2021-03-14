@@ -21,3 +21,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('/gwf', [APIController::class, 'getWeatherForecast']);
+Route::get('/gc', [APIController::class, 'getCities']);
