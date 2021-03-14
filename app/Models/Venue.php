@@ -24,9 +24,10 @@ class Venue
         $this->categories = collect($venue['categories'])->map(function($category, $key){
           $return_cat = [];
           $return_cat['name'] = $category['name'];
+          $return_cat['id'] = $category['id'];
           $return_cat['plural'] = $category['pluralName'];
           $return_cat['short'] = $category['shortName'];
-          $return_cat['icon_url'] = $category['icon']['prefix'].$category['icon']['suffix'];
+          $return_cat['icon_url'] = $category['icon']['prefix'].'32'.$category['icon']['suffix'];
           return $return_cat;
         });
 

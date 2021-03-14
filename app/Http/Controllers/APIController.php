@@ -39,7 +39,9 @@ class APIController extends Controller
       'q' => $location,
       'appid' => env('OPEN_WEATHER_APIKEY')
     ];
-    $response = $this->sendRequest($api_request, $api_data)->collect();
+    $response = cache()->remember($city.'-forecasts-'.now()->format('Y-m-d'), 3600, function() use ($api_request, $api_data){
+      return $this->sendRequest($api_request, $api_data)->collect();
+    });
 
     $response_forecasts = collect($response->get('list'));
 
@@ -47,11 +49,13 @@ class APIController extends Controller
       return new Forecast($date);
     });
 
-    $venues = $this->getVenueDetails($location);
+    $venues = cache()->remember($city.'-venues-'.now()->format('Y-m-d'), 3600, function() use ($location){
+      return $this->getVenueDetails($location);
+    });
 
     $return_data = ['forecasts' => $forecasts->toArray(), 'venues' => $venues->toArray()];
 
-    Log::debug($return_data);
+    // Log::debug($return_data);
 
     return $this->sendResponse("SUCCESS", null, null, $return_data);
   }

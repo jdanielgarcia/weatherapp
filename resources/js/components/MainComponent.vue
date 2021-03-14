@@ -1,8 +1,8 @@
 <template>
   <div>
     <city-flicker v-on:changeSlide="changeCity" v-on:openModal="displayModal"></city-flicker>
-    <venues-details-list id="venue_details" v-bind:venues.sync="venues"></venues-details-list>
-    <weather-details-list id="weather_details" v-bind:forecasts.sync="forecasts"></weather-details-list>
+    <venues-details-list id="venue_details" :venues.sync="venues" v-on:closeModal="dismissModal"></venues-details-list>
+    <weather-details-list id="weather_details" :forecasts.sync="forecasts" v-on:closeModal="dismissModal"></weather-details-list>
   </div>
 </template>
 <style>
@@ -14,8 +14,11 @@
       return {
         selected_city: 'Tokyo',
         venues: [],
-        forecasts: []
+        forecasts: [],
       }
+    },
+    mounted(){
+      this.getCityWeather();
     },
     methods:{
       changeCity(city_index){
@@ -42,10 +45,11 @@
             this.selected_city = 'Tokyo'
         }
       },
+      dismissModal(id){
+        $("#"+id).click();
+      },
       displayModal(id){
-        var myModal = new bootstrap.Modal(document.getElementById(id), {
-          keyboard: false
-        })
+        var myModal = new bootstrap.Modal(document.getElementById(id))
         myModal.show()
       },
       getCityWeather(){
@@ -53,7 +57,6 @@
         axios.post(process.env.MIX_APP_URL+'/api/gwf', {city: this.selected_city}).then(response=>{
           that.venues = response.data.DATA.venues
           that.forecasts = response.data.DATA.forecasts
-          console.log(response)
         })
       }
     },
